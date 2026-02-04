@@ -1,0 +1,5 @@
+{
+  "name": "Allianz Birthday Manager",
+  "description": "A frontend demo for the Allianz birthday service, featuring an interactive calendar and an email template editor.",
+  "requestFramePermissions": []
+}
