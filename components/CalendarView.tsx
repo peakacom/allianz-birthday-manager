@@ -88,6 +88,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onCustomerSelect }) => {
 
   // Fetch all birthdays for the month (for calendar indicators)
   const fetchMonthlyBirthdays = async () => {
+    setIsLoading(true);
     try {
       // API endpoint: /birthday/{month} (without day parameter)
       const apiMonth = month + 1; // Convert from 0-indexed to 1-indexed
@@ -110,6 +111,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onCustomerSelect }) => {
       console.error("Failed to fetch monthly birthdays:", error);
       setMonthlyBirthdays([]);
       setCustomers([]);
+      setIsLoading(false);
     }
   };
 
@@ -207,7 +209,17 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onCustomerSelect }) => {
       <div className="flex flex-col lg:flex-row flex-1 gap-6 p-8 overflow-hidden">
         {/* Calendar Widget */}
         <div className="w-full lg:w-[380px] flex flex-col gap-4 flex-shrink-0">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 relative">
+            {/* Loading overlay for calendar */}
+            {isLoading && (
+              <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-30 flex items-center justify-center rounded-xl">
+                <div className="flex flex-col items-center gap-2">
+                  <Loader2 className="w-6 h-6 text-secondary animate-spin" />
+                  <p className="text-xs font-medium text-text-sub">Loading...</p>
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center p-1 justify-between mb-4">
               <button
                 onClick={goToPreviousMonth}
