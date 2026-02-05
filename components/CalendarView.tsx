@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Download, Sparkles, ChevronLeft, ChevronRight, CheckCircle, Loader2 } from 'lucide-react';
 import { Customer } from '../types';
 
 
 interface CalendarViewProps {
-  onCustomerSelect: (customer: Customer) => void;
+  onCustomerSelect: (customer: Customer, month: number, day: number, year: number) => void;
 }
 
 const CalendarView: React.FC<CalendarViewProps> = ({ onCustomerSelect }) => {
@@ -18,6 +18,9 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onCustomerSelect }) => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [monthlyBirthdays, setMonthlyBirthdays] = useState<Customer[]>([]); // All birthdays for the month
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // Track previous month/year to prevent unnecessary refetches
+  const prevMonthYear = useRef<{ month: number; year: number } | null>(null);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -170,9 +173,16 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onCustomerSelect }) => {
     }
   };
 
-  // Fetch monthly birthdays when component mounts or month changes
+  // Fetch monthly birthdays only when month or year actually changes
   useEffect(() => {
-    fetchMonthlyBirthdays();
+    // Check if month or year has actually changed
+    if (!prevMonthYear.current ||
+      prevMonthYear.current.month !== month ||
+      prevMonthYear.current.year !== year) {
+
+      fetchMonthlyBirthdays();
+      prevMonthYear.current = { month, year };
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [month, year]);
 
@@ -363,7 +373,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onCustomerSelect }) => {
                           </div>
                         ) : (
                           <button
-                            onClick={() => onCustomerSelect(customer)}
+                            onClick={() => onCustomerSelect(customer, month + 1, selectedDay, year)}
                             className="bg-secondary hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all shadow-sm transform active:scale-95"
                           >
                             Send Email
